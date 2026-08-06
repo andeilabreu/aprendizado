@@ -1,0 +1,6 @@
+{
+  "name": "damas",
+  "private": true,
+  "type": "module",
+  "description": "Jogo de damas brasileiras"
+}

@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Damas</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Source+Sans+3:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <div class="ambient" aria-hidden="true"></div>
+
+    <main class="app">
+      <header class="brand">
+        <p class="eyebrow">Andeil · Aprendizado</p>
+        <h1>Damas</h1>
+        <p class="tagline">Duas pessoas, um tabuleiro, regras brasileiras.</p>
+      </header>
+
+      <section class="stage" aria-label="Área do jogo">
+        <aside class="panel panel--left" aria-live="polite">
+          <div class="player" data-side="dark">
+            <span class="player__swatch player__swatch--dark"></span>
+            <div>
+              <strong>Pretas</strong>
+              <span class="player__meta" id="count-dark">12 peças</span>
+            </div>
+          </div>
+          <div class="status" id="status">Vez das pretas</div>
+          <p class="hint" id="hint">Clique em uma peça para começar.</p>
+        </aside>
+
+        <div class="board-wrap">
+          <div class="board" id="board" role="grid" aria-label="Tabuleiro de damas 8 por 8"></div>
+        </div>
+
+        <aside class="panel panel--right">
+          <div class="player" data-side="light">
+            <span class="player__swatch player__swatch--light"></span>
+            <div>
+              <strong>Brancas</strong>
+              <span class="player__meta" id="count-light">12 peças</span>
+            </div>
+          </div>
+          <div class="actions">
+            <button type="button" class="btn btn--primary" id="btn-new">
+              Nova partida
+            </button>
+            <button type="button" class="btn" id="btn-undo" disabled>
+              Desfazer
+            </button>
+          </div>
+          <ul class="rules">
+            <li>Captura obrigatória</li>
+            <li>Maior sequência vence o desempate</li>
+            <li>Dama voa em diagonal</li>
+          </ul>
+        </aside>
+      </section>
+    </main>
+
+    <div class="modal" id="modal" hidden>
+      <div class="modal__card" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+        <h2 id="modal-title">Fim de jogo</h2>
+        <p id="modal-text"></p>
+        <button type="button" class="btn btn--primary" id="btn-modal-new">
+          Jogar de novo
+        </button>
+      </div>
+    </div>
+
+    <script type="module" src="js/main.js"></script>
+  </body>
+</html>
