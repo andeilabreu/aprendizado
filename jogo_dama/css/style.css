@@ -4,9 +4,9 @@
   --muted: #6d645a;
   --accent: #c45c26;
   --accent-deep: #9a3f14;
-  --board-light: #d8c4a4;
-  --board-dark: #3d6b52;
-  --board-frame: #2a2118;
+  --board-light: #fff7fb;
+  --board-dark: #e891b8;
+  --board-frame: #b85a86;
   --piece-dark: #1f1a16;
   --piece-light: #f7f1e6;
   --glow: rgba(196, 92, 38, 0.45);
@@ -236,7 +236,7 @@ body {
   padding: 1rem;
   border-radius: 18px;
   background:
-    linear-gradient(145deg, #3a2f24, #1f1812 55%, #2c2218);
+    linear-gradient(145deg, #d98aaf, #9a4d73 55%, #c46b95);
   box-shadow: var(--shadow);
 }
 
@@ -275,7 +275,7 @@ body {
 
 .square--dark {
   background:
-    radial-gradient(circle at 30% 25%, rgba(255, 255, 255, 0.08), transparent 45%),
+    radial-gradient(circle at 30% 25%, rgba(255, 255, 255, 0.22), transparent 45%),
     var(--board-dark);
 }
 
