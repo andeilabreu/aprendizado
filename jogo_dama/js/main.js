@@ -10,29 +10,51 @@ import {
   opposite,
   samePos,
 } from "./rules.js";
+import { chooseMove } from "./ai.js";
 
 const boardEl = document.getElementById("board");
 const statusEl = document.getElementById("status");
 const hintEl = document.getElementById("hint");
 const countDarkEl = document.getElementById("count-dark");
 const countLightEl = document.getElementById("count-light");
+const labelDarkEl = document.getElementById("label-dark");
+const labelLightEl = document.getElementById("label-light");
+const taglineEl = document.getElementById("tagline");
 const btnNew = document.getElementById("btn-new");
 const btnUndo = document.getElementById("btn-undo");
 const modal = document.getElementById("modal");
 const modalText = document.getElementById("modal-text");
 const btnModalNew = document.getElementById("btn-modal-new");
+const modeButtons = [...document.querySelectorAll(".mode-btn")];
 
-/** @type {{ board: import('./rules.js').Cell[][], turn: import('./rules.js').Side, selected: import('./rules.js').Pos | null, history: { board: import('./rules.js').Cell[][], turn: import('./rules.js').Side }[], winner: import('./rules.js').Side | 'draw' | null }} */
+/** Lado controlado pela máquina no modo CPU (joga primeiro) */
+const CPU_SIDE = DARK;
+
+/** @type {{ board: import('./rules.js').Cell[][], turn: import('./rules.js').Side, selected: import('./rules.js').Pos | null, history: { board: import('./rules.js').Cell[][], turn: import('./rules.js').Side }[], winner: import('./rules.js').Side | 'draw' | null, mode: 'pvp' | 'cpu', thinking: boolean }} */
 const state = {
   board: createBoard(),
   turn: DARK,
   selected: null,
   history: [],
   winner: null,
+  mode: "pvp",
+  thinking: false,
 };
 
+/** @type {ReturnType<typeof setTimeout> | null} */
+let cpuTimer = null;
+
 function sideLabel(side) {
+  if (state.mode === "cpu") {
+    return side === CPU_SIDE ? "máquina" : "você";
+  }
   return side === DARK ? "pretas" : "brancas";
+}
+
+function isHumanTurn() {
+  if (state.winner || state.thinking) return false;
+  if (state.mode === "pvp") return true;
+  return state.turn !== CPU_SIDE;
 }
 
 function currentMoves() {
@@ -60,6 +82,22 @@ function mustCapturePieces() {
   return positions;
 }
 
+function updateModeLabels() {
+  modeButtons.forEach((btn) => {
+    btn.classList.toggle("is-active", btn.dataset.mode === state.mode);
+  });
+
+  if (state.mode === "cpu") {
+    labelDarkEl.textContent = "Máquina";
+    labelLightEl.textContent = "Você";
+    taglineEl.textContent = "Você joga de brancas. A máquina começa de pretas.";
+  } else {
+    labelDarkEl.textContent = "Pretas";
+    labelLightEl.textContent = "Brancas";
+    taglineEl.textContent = "Duas pessoas, um tabuleiro, regras brasileiras.";
+  }
+}
+
 function updateHud() {
   const dark = countPieces(state.board, DARK);
   const light = countPieces(state.board, LIGHT);
@@ -70,7 +108,8 @@ function updateHud() {
     el.classList.toggle("is-active", el.dataset.side === state.turn && !state.winner);
   });
 
-  btnUndo.disabled = state.history.length === 0 || Boolean(state.winner);
+  btnUndo.disabled =
+    state.history.length === 0 || Boolean(state.winner) || state.thinking;
 
   if (state.winner === "draw") {
     statusEl.textContent = "Empate";
@@ -79,18 +118,35 @@ function updateHud() {
   }
 
   if (state.winner) {
-    statusEl.textContent = `${sideLabel(state.winner)} venceram`;
+    if (state.mode === "cpu") {
+      statusEl.textContent =
+        state.winner === CPU_SIDE ? "A máquina venceu" : "Você venceu";
+    } else {
+      statusEl.textContent = `${sideLabel(state.winner)} venceram`;
+    }
     hintEl.textContent = "Inicie uma nova partida para jogar de novo.";
     return;
   }
 
-  statusEl.textContent = `Vez das ${sideLabel(state.turn)}`;
+  if (state.thinking) {
+    statusEl.textContent = "Vez da máquina";
+    hintEl.textContent = "A máquina está pensando…";
+    return;
+  }
+
+  if (state.mode === "cpu") {
+    statusEl.textContent = isHumanTurn() ? "Sua vez" : "Vez da máquina";
+  } else {
+    statusEl.textContent = `Vez das ${sideLabel(state.turn)}`;
+  }
 
   const moves = currentMoves();
   if (moves.length && moves[0].captured.length > 0) {
     hintEl.textContent = `Captura obrigatória (${moves[0].captured.length} peça${moves[0].captured.length > 1 ? "s" : ""}).`;
   } else if (state.selected) {
     hintEl.textContent = "Toque ou solte na casa destacada.";
+  } else if (state.mode === "cpu") {
+    hintEl.textContent = "Toque ou arraste sua peça (brancas).";
   } else {
     hintEl.textContent = "Toque ou arraste uma peça para mover.";
   }
@@ -98,8 +154,14 @@ function updateHud() {
 
 function showWinner(winner) {
   state.winner = winner;
+  state.thinking = false;
   if (winner === "draw") {
     modalText.textContent = "Não há mais jogadas possíveis.";
+  } else if (state.mode === "cpu") {
+    modalText.textContent =
+      winner === CPU_SIDE
+        ? "A máquina venceu a partida."
+        : "Parabéns! Você venceu a máquina.";
   } else {
     modalText.textContent = `As ${sideLabel(winner)} venceram a partida.`;
   }
@@ -120,7 +182,6 @@ function checkEnd() {
     return true;
   }
   if (!hasAnyMove(state.board, state.turn)) {
-    // Sem movimento: o adversário vence
     showWinner(opposite(state.turn));
     return true;
   }
@@ -134,34 +195,113 @@ function pushHistory() {
   });
 }
 
+function cancelCpuTimer() {
+  if (cpuTimer != null) {
+    clearTimeout(cpuTimer);
+    cpuTimer = null;
+  }
+  state.thinking = false;
+}
+
+function scheduleCpuMove() {
+  cancelCpuTimer();
+  if (state.mode !== "cpu" || state.winner) return;
+  if (state.turn !== CPU_SIDE) return;
+
+  state.thinking = true;
+  state.selected = null;
+  updateHud();
+  render();
+
+  cpuTimer = setTimeout(() => {
+    cpuTimer = null;
+    if (state.mode !== "cpu" || state.winner || state.turn !== CPU_SIDE) {
+      state.thinking = false;
+      updateHud();
+      render();
+      return;
+    }
+
+    const move = chooseMove(state.board, CPU_SIDE);
+    state.thinking = false;
+    if (!move) {
+      checkEnd();
+      return;
+    }
+
+    pushHistory();
+    state.board = applyMove(state.board, move);
+    state.selected = null;
+    state.turn = opposite(state.turn);
+    updateHud();
+    render();
+    checkEnd();
+  }, 450);
+}
+
 function newGame() {
+  cancelCpuTimer();
   state.board = createBoard();
   state.turn = DARK;
   state.selected = null;
   state.history = [];
   state.winner = null;
   modal.hidden = true;
+  updateModeLabels();
   updateHud();
   render();
+  scheduleCpuMove();
+}
+
+/**
+ * @param {'pvp' | 'cpu'} mode
+ */
+function setMode(mode) {
+  if (state.mode === mode) return;
+  state.mode = mode;
+  newGame();
 }
 
 function undo() {
-  const prev = state.history.pop();
-  if (!prev) return;
-  state.board = prev.board;
-  state.turn = prev.turn;
+  if (state.thinking) return;
+  cancelCpuTimer();
+
+  if (state.mode === "cpu") {
+    // Desfaz a resposta da máquina (se houver) e a jogada do humano
+    if (state.turn !== CPU_SIDE && state.history.length >= 2) {
+      state.history.pop();
+      const prev = state.history.pop();
+      if (!prev) return;
+      state.board = prev.board;
+      state.turn = prev.turn;
+    } else if (state.history.length >= 1) {
+      const prev = state.history.pop();
+      if (!prev) return;
+      state.board = prev.board;
+      state.turn = prev.turn;
+    } else {
+      return;
+    }
+  } else {
+    const prev = state.history.pop();
+    if (!prev) return;
+    state.board = prev.board;
+    state.turn = prev.turn;
+  }
+
   state.selected = null;
   state.winner = null;
   modal.hidden = true;
   updateHud();
   render();
+  scheduleCpuMove();
 }
 
 /**
  * @param {import('./rules.js').Pos} pos
  */
 function onSquareClick(pos) {
-  if (state.winner) return;
+  if (!isHumanTurn()) return;
 
   const moves = currentMoves();
   const piece = state.board[pos.r][pos.c];
@@ -175,7 +315,7 @@ function onSquareClick(pos) {
       state.turn = opposite(state.turn);
       updateHud();
       render();
-      checkEnd();
+      if (!checkEnd()) scheduleCpuMove();
       return;
     }
   }
@@ -226,6 +366,7 @@ function posFromPoint(clientX, clientY) {
  * @param {import('./rules.js').Pos} to
  */
 function tryMove(from, to) {
+  if (!isHumanTurn()) return false;
   const move = findMove(currentMoves(), from, to);
   if (!move) return false;
   pushHistory();
@@ -234,7 +375,7 @@ function tryMove(from, to) {
   state.turn = opposite(state.turn);
   updateHud();
   render();
-  checkEnd();
+  if (!checkEnd()) scheduleCpuMove();
   return true;
 }
 
@@ -244,7 +385,7 @@ function tryMove(from, to) {
  * @param {HTMLElement} pieceEl
  */
 function onPiecePointerDown(event, pos, pieceEl) {
-  if (state.winner) return;
+  if (!isHumanTurn()) return;
   if (event.pointerType === "mouse" && event.button !== 0) return;
   if (drag) return;
 
@@ -311,23 +452,21 @@ function onPiecePointerUp(event) {
     if (dropPos && !samePos(dropPos, from) && tryMove(from, dropPos)) {
       return;
     }
-    // Soltou em casa inválida: só seleciona a peça
     state.selected = from;
     updateHud();
     render();
     return;
   }
 
-  // Toque curto = selecionar / desmarcar / jogar (se já havia seleção)
   onSquareClick(from);
 }
 
 function render() {
-  const moves = movesFromSelected();
+  const moves = isHumanTurn() ? movesFromSelected() : [];
   const targets = new Map(
     moves.map((m) => [`${m.to.r},${m.to.c}`, m.captured.length > 0]),
   );
-  const must = mustCapturePieces();
+  const must = isHumanTurn() ? mustCapturePieces() : [];
   const mustKeys = new Set(must.map((p) => `${p.r},${p.c}`));
 
   boardEl.replaceChildren();
@@ -366,7 +505,7 @@ function render() {
           "aria-label",
           `${cell.side === DARK ? "Preta" : "Branca"}${cell.king ? " dama" : ""} em linha ${r + 1}, coluna ${c + 1}`,
         );
-        const playable = !state.winner && cell.side === state.turn;
+        const playable = isHumanTurn() && cell.side === state.turn;
         btn.disabled = !playable;
         if (playable) {
           btn.addEventListener("pointerdown", (e) =>
@@ -381,6 +520,7 @@ function render() {
 
       square.addEventListener("pointerup", (e) => {
         if (drag) return;
+        if (!isHumanTurn()) return;
         if (e.pointerType === "mouse" && e.button !== 0) return;
         if (e.target !== square) return;
         onSquareClick({ r, c });
@@ -389,6 +529,13 @@ function render() {
     }
   }
 }
+
+modeButtons.forEach((btn) => {
+  btn.addEventListener("click", () => {
+    const mode = btn.dataset.mode === "cpu" ? "cpu" : "pvp";
+    setMode(mode);
+  });
+});
 
 btnNew.addEventListener("click", newGame);
 btnModalNew.addEventListener("click", newGame);
@@ -402,5 +549,6 @@ document.addEventListener("keydown", (e) => {
   }
 });
 
+updateModeLabels();
 updateHud();
 render();

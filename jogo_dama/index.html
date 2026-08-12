@@ -19,7 +19,16 @@
       <header class="brand">
         <p class="eyebrow">Andeil · Aprendizado</p>
         <h1>Damas</h1>
-        <p class="tagline">Duas pessoas, um tabuleiro, regras brasileiras.</p>
+        <p class="tagline" id="tagline">Escolha o modo e comece a partida.</p>
+
+        <div class="mode-switch" role="group" aria-label="Modo de jogo">
+          <button type="button" class="mode-btn is-active" data-mode="pvp" id="mode-pvp">
+            2 jogadores
+          </button>
+          <button type="button" class="mode-btn" data-mode="cpu" id="mode-cpu">
+            Contra a máquina
+          </button>
+        </div>
       </header>
 
       <section class="stage" aria-label="Área do jogo">
@@ -27,7 +36,7 @@
           <div class="player" data-side="dark">
             <span class="player__swatch player__swatch--dark"></span>
             <div>
-              <strong>Pretas</strong>
+              <strong id="label-dark">Pretas</strong>
               <span class="player__meta" id="count-dark">12 peças</span>
             </div>
           </div>
@@ -43,7 +52,7 @@
           <div class="player" data-side="light">
             <span class="player__swatch player__swatch--light"></span>
             <div>
-              <strong>Brancas</strong>
+              <strong id="label-light">Brancas</strong>
               <span class="player__meta" id="count-light">12 peças</span>
             </div>
           </div>
