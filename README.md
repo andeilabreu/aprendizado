@@ -1,3 +1,6 @@
+# meus dados
+meu nome é Andeil
+Tenho 52 anos
 # Damas
 
 Jogo de **damas brasileiras** para duas pessoas no mesmo navegador.

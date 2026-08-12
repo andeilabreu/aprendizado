@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Análise Financeira - Andeil</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+        
+        .periodo {
+            text-align: center;
+            color: #7f8c8d;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+        
+        .resumo {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        
+        .card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .card.receitas {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        }
+        
+        .card.despesas {
+            background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
+        }
+        
+        .card.saldo {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+        
+        .card.media {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+        }
+        
+        .card-title {
+            font-size: 0.9em;
+            opacity: 0.9;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .card-value {
+            font-size: 2em;
+            font-weight: bold;
+        }
+        
+        .secao {
+            margin-bottom: 40px;
+        }
+        
+        .secao-titulo {
+            color: #2c3e50;
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #667eea;
+        }
+        
+        .barra-container {
+            margin-bottom: 15px;
+        }
+        
+        .barra-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-size: 0.95em;
+        }
+        
+        .categoria-nome {
+            color: #2c3e50;
+            font-weight: 600;
+        }
+        
+        .categoria-valor {
+            color: #7f8c8d;
+            font-weight: bold;
+        }
+        
+        .barra-externa {
+            background: #ecf0f1;
+            border-radius: 10px;
+            height: 30px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .barra-interna {
+            height: 100%;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            padding-left: 10px;
+            color: white;
+            font-weight: bold;
+            font-size: 0.85em;
+            transition: width 1s ease;
+        }
+        
+        .cor1 { background: linear-gradient(90deg, #FF6B6B, #ff8787); }
+        .cor2 { background: linear-gradient(90deg, #4ECDC4, #6ed9d0); }
+        .cor3 { background: linear-gradient(90deg, #45B7D1, #67c5dd); }
+        .cor4 { background: linear-gradient(90deg, #FFA07A, #ffb393); }
+        .cor5 { background: linear-gradient(90deg, #98D8C8, #aedfd2); }
+        .cor6 { background: linear-gradient(90deg, #F7DC6F, #f9e38e); }
+        .cor7 { background: linear-gradient(90deg, #BB8FCE, #caa6d8); }
+        
+        .insights {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 15px;
+            border-left: 5px solid #667eea;
+        }
+        
+        .insight-item {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        
+        .insight-titulo {
+            color: #667eea;
+            font-weight: bold;
+            margin-bottom: 8px;
+            font-size: 1.1em;
+        }
+        
+        .insight-texto {
+            color: #555;
+            line-height: 1.6;
+        }
+        
+        .recomendacoes {
+            background: #fff3cd;
+            padding: 25px;
+            border-radius: 15px;
+            border-left: 5px solid #ffc107;
+        }
+        
+        .recomendacao-item {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+        }
+        
+        .recomendacao-titulo {
+            color: #e67e22;
+            font-weight: bold;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+        
+        .recomendacao-lista {
+            list-style: none;
+            padding-left: 0;
+        }
+        
+        .recomendacao-lista li {
+            padding: 5px 0;
+            padding-left: 20px;
+            position: relative;
+            color: #555;
+        }
+        
+        .recomendacao-lista li:before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: #e67e22;
+            font-weight: bold;
+        }
+        
+        .pizza-chart {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 30px 0;
+        }
+        
+        @media print {
+            body {
+                background: white;
+            }
+            .container {
+                box-shadow: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📊 Análise Financeira</h1>
+        <p class="periodo">Período: 07/07/2026 a 07/08/2026 (32 dias)</p>
+        
+        <div class="resumo">
+            <div class="card receitas">
+                <div class="card-title">Total de Receitas</div>
+                <div class="card-value">R$ 2.503,90</div>
+            </div>
+            <div class="card despesas">
+                <div class="card-title">Total de Despesas</div>
+                <div class="card-value">R$ 1.927,01</div>
+            </div>
+            <div class="card saldo">
+                <div class="card-title">Sobra do Mês</div>
+                <div class="card-value">R$ 576,89</div>
+            </div>
+            <div class="card media">
+                <div class="card-title">Média Diária</div>
+                <div class="card-value">R$ 60,22</div>
+            </div>
+        </div>
+        
+        <div class="secao">
+            <h2 class="secao-titulo">💳 Gastos por Categoria</h2>
+            
+            <div class="barra-container">
+                <div class="barra-label">
+                    <span class="categoria-nome">Alimentação - Mercado</span>
+                    <span class="categoria-valor">R$ 553,68 (28,7%)</span>
+                </div>
+                <div class="barra-externa">
+                    <div class="barra-interna cor1" style="width: 28.7%;">28,7%</div>
+                </div>
+            </div>
+            
+            <div class="barra-container">
+                <div class="barra-label">
+                    <span class="categoria-nome">Transporte (Uber)</span>
+                    <span class="categoria-valor">R$ 437,52 (22,7%)</span>
+                </div>
+                <div class="barra-externa">
+                    <div class="barra-interna cor2" style="width: 22.7%;">22,7%</div>
+                </div>
+            </div>
+            
+            <div class="barra-container">
+                <div class="barra-label">
+                    <span class="categoria-nome">Transferências (PIX)</span>
+                    <span class="categoria-valor">R$ 372,00 (19,3%)</span>
+                </div>
+                <div class="barra-externa">
+                    <div class="barra-interna cor3" style="width: 19.3%;">19,3%</div>
+                </div>
+            </div>
+            
+            <div class="barra-container">
+                <div class="barra-label">
+                    <span class="categoria-nome">Água/Bebidas</span>
+                    <span class="categoria-valor">R$ 302,25 (15,7%)</span>
+                </div>
+                <div class="barra-externa">
+                    <div class="barra-interna cor4" style="width: 15.7%;">15,7%</div>
+                </div>
+            </div>
+            
+            <div class="barra-container">
+                <div class="barra-label">
+                    <span class="categoria-nome">Alimentação - Restaurante</span>
+                    <span class="categoria-valor">R$ 171,58 (8,9%)</span>
+                </div>
+                <div class="barra-externa">
+                    <div class="barra-interna cor5" style="width: 8.9%;">8,9%</div>
+                </div>
+            </div>
+            
+            <div class="barra-container">
+                <div class="barra-label">
+                    <span class="categoria-nome">Outros</span>
+                    <span class="categoria-valor">R$ 65,99 (3,4%)</span>
+                </div>
+                <div class="barra-externa">
+                    <div class="barra-interna cor6" style="width: 3.4%;">3,4%</div>
+                </div>
+            </div>
+            
+            <div class="barra-container">
+                <div class="barra-label">
+                    <span class="categoria-nome">Farmácia</span>
+                    <span class="categoria-valor">R$ 23,99 (1,2%)</span>
+                </div>
+                <div class="barra-externa">
+                    <div class="barra-interna cor7" style="width: 1.2%;">1,2%</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="secao">
+            <h2 class="secao-titulo">💡 Principais Insights</h2>
+            <div class="insights">
+                <div class="insight-item">
+                    <div class="insight-titulo">1. Maior Gasto: Alimentação</div>
+                    <div class="insight-texto">
+                        Alimentação representa <strong>37,6%</strong> do total de gastos (R$ 725,26), sendo:
+                        <br>• Mercado: R$ 553,68 (28,7%)
+                        <br>• Restaurante: R$ 171,58 (8,9%)
+                    </div>
+                </div>
+                
+                <div class="insight-item">
+                    <div class="insight-titulo">2. Transporte Significativo</div>
+                    <div class="insight-texto">
+                        Gastos com Uber totalizam <strong>R$ 437,52</strong> (22,7% do total).
+                        <br>Média de R$ 13,67 por dia em transporte.
+                    </div>
+                </div>
+                
+                <div class="insight-item">
+                    <div class="insight-titulo">3. Água e Bebidas</div>
+                    <div class="insight-texto">
+                        Gasto de <strong>R$ 302,25</strong> com distribuidora (15,7% do total).
+                        <br>Equivalente a R$ 9,45 por dia.
+                    </div>
+                </div>
+                
+                <div class="insight-item">
+                    <div class="insight-titulo">4. Gestão Financeira Positiva</div>
+                    <div class="insight-texto">
+                        Você conseguiu uma sobra de <strong>R$ 576,89</strong> no mês.
+                        <br>Isso representa 23% das suas receitas sendo poupadas! 👏
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="secao">
+            <h2 class="secao-titulo">🎯 Recomendações</h2>
+            <div class="recomendacoes">
+                <div class="recomendacao-item">
+                    <div class="recomendacao-titulo">💰 Alimentação (37,6% dos gastos)</div>
+                    <ul class="recomendacao-lista">
+                        <li>Planeje compras semanais para reduzir idas ao mercado</li>
+                        <li>Reduza refeições em restaurantes (atualmente R$ 171,58/mês)</li>
+                        <li>Faça lista de compras para evitar compras por impulso</li>
+                        <li>Compare preços entre diferentes mercados</li>
+                    </ul>
+                </div>
+                
+                <div class="recomendacao-item">
+                    <div class="recomendacao-titulo">🚗 Transporte (22,7% dos gastos)</div>
+                    <ul class="recomendacao-lista">
+                        <li>Avalie uso de transporte público quando possível</li>
+                        <li>Considere carona compartilhada para reduzir custos</li>
+                        <li>Agrupe seus deslocamentos para otimizar rotas</li>
+                        <li>Meta: reduzir 30% = economia de R$ 131,26/mês</li>
+                    </ul>
+                </div>
+                
+                <div class="recomendacao-item">
+                    <div class="recomendacao-titulo">💧 Água/Bebidas (15,7% dos gastos)</div>
+                    <ul class="recomendacao-lista">
+                        <li>Avalie investir em filtro de água para longo prazo</li>
+                        <li>Compare preços de diferentes distribuidoras</li>
+                        <li>Considere comprar galões maiores (melhor custo-benefício)</li>
+                    </ul>
+                </div>
+                
+                <div class="recomendacao-item">
+                    <div class="recomendacao-titulo">📈 Próximos Passos</div>
+                    <ul class="recomendacao-lista">
+                        <li>Continue monitorando seus gastos mensalmente</li>
+                        <li>Estabeleça limites por categoria</li>
+                        <li>Meta sugerida: aumentar sobra para 30% da receita</li>
+                        <li>Considere criar uma reserva de emergência</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Atelier — Prova virtual</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div class="app">
+    <header class="chrome">
+      <div class="top">
+        <p class="brand">Atelier</p>
+        <p class="tag">Prova virtual</p>
+      </div>
+      <nav class="steps" aria-label="Etapas">
+        <button type="button" class="step is-active" data-step="1">Cliente</button>
+        <button type="button" class="step" data-step="2">Roupa</button>
+        <button type="button" class="step" data-step="3">Vestir</button>
+        <button type="button" class="step" data-step="4">Resultado</button>
+      </nav>
+    </header>
+
+    <main>
+      <!-- Etapa 1: foto da cliente -->
+      <section class="panel is-visible" id="panel-1" aria-labelledby="title-1">
+        <div class="panel-head">
+          <h1 id="title-1">Foto da cliente</h1>
+        </div>
+
+        <div class="stage">
+          <video id="camera-preview" class="media" playsinline muted hidden></video>
+          <img id="client-preview" class="media" alt="Prévia da cliente" hidden />
+          <div id="client-placeholder" class="placeholder">
+            <span>Nenhuma foto ainda</span>
+          </div>
+        </div>
+
+        <div class="dock">
+          <div class="actions">
+            <button type="button" class="btn" id="btn-camera">Câmera</button>
+            <button type="button" class="btn btn-ghost" id="btn-capture" hidden>Tirar foto</button>
+            <label class="btn btn-ghost">
+              Arquivo
+              <input type="file" id="client-file" accept="image/*" hidden />
+            </label>
+            <button type="button" class="btn btn-ghost" id="btn-client-demo">Exemplo</button>
+          </div>
+          <div class="footer-nav">
+            <span></span>
+            <button type="button" class="btn" data-goto="2">Continuar</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Etapa 2: foto da roupa -->
+      <section class="panel" id="panel-2" aria-labelledby="title-2" hidden>
+        <div class="panel-head">
+          <h1 id="title-2">Foto da roupa</h1>
+        </div>
+
+        <div class="stage stage-soft">
+          <img id="garment-preview" class="media media-contain" alt="Prévia da roupa" hidden />
+          <div id="garment-placeholder" class="placeholder">
+            <span>Nenhuma roupa ainda</span>
+          </div>
+        </div>
+
+        <div class="dock">
+          <div class="actions">
+            <label class="btn">
+              Enviar
+              <input type="file" id="garment-file" accept="image/*" hidden />
+            </label>
+            <button type="button" class="btn btn-ghost" id="btn-garment-demo">Exemplo</button>
+          </div>
+          <div class="footer-nav">
+            <button type="button" class="btn btn-ghost" data-goto="1">Voltar</button>
+            <button type="button" class="btn" data-goto="3">Continuar</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Etapa 3: vestir / ajustes -->
+      <section class="panel" id="panel-3" aria-labelledby="title-3" hidden>
+        <div class="panel-head">
+          <h1 id="title-3">Vestir e ajustar</h1>
+          <p class="lead">Arraste a roupa na foto</p>
+        </div>
+
+        <div class="stage stage-canvas">
+          <canvas id="tryon-canvas" width="720" height="960" aria-label="Área de prova virtual"></canvas>
+          <p class="hint" id="tryon-hint">Adicione cliente e roupa antes.</p>
+        </div>
+
+        <div class="dock">
+          <div class="color-row" aria-label="Cores da roupa">
+            <span class="color-label">Cor</span>
+            <div class="swatches" id="color-swatches">
+              <button type="button" class="swatch is-active" data-color="" title="Original" aria-label="Cor original">
+                <span class="swatch-original"></span>
+              </button>
+              <button type="button" class="swatch" data-color="#8b4d3b" title="Terracota" aria-label="Terracota" style="--swatch:#8b4d3b"></button>
+              <button type="button" class="swatch" data-color="#1c1916" title="Preto" aria-label="Preto" style="--swatch:#1c1916"></button>
+              <button type="button" class="swatch" data-color="#f4f0ea" title="Off-white" aria-label="Off-white" style="--swatch:#f4f0ea"></button>
+              <button type="button" class="swatch" data-color="#2f5d50" title="Verde" aria-label="Verde" style="--swatch:#2f5d50"></button>
+              <button type="button" class="swatch" data-color="#3d5a80" title="Azul" aria-label="Azul" style="--swatch:#3d5a80"></button>
+              <button type="button" class="swatch" data-color="#9a3412" title="Ferrugem" aria-label="Ferrugem" style="--swatch:#9a3412"></button>
+              <button type="button" class="swatch" data-color="#7c6a4a" title="Camel" aria-label="Camel" style="--swatch:#7c6a4a"></button>
+              <button type="button" class="swatch" data-color="#6b3fa0" title="Roxo" aria-label="Roxo" style="--swatch:#6b3fa0"></button>
+              <label class="swatch swatch-picker" title="Escolher cor">
+                <input type="color" id="ctrl-color" value="#8b4d3b" aria-label="Escolher cor personalizada" />
+              </label>
+            </div>
+          </div>
+          <div class="controls">
+            <label>
+              Tamanho
+              <input type="range" id="ctrl-scale" min="20" max="180" value="70" />
+            </label>
+            <label>
+              Rotação
+              <input type="range" id="ctrl-rotate" min="-45" max="45" value="0" />
+            </label>
+            <label>
+              Opacidade
+              <input type="range" id="ctrl-opacity" min="30" max="100" value="92" />
+            </label>
+          </div>
+          <div class="footer-nav">
+            <button type="button" class="btn btn-ghost" data-goto="2">Voltar</button>
+            <button type="button" class="btn btn-ghost" id="btn-reset-garment">Centralizar</button>
+            <button type="button" class="btn btn-ai" id="btn-ai-tryon">Vestir com IA</button>
+            <button type="button" class="btn" data-goto="4">Resultado</button>
+          </div>
+          <p class="ai-status" id="ai-status" hidden></p>
+        </div>
+      </section>
+
+      <!-- Etapa 4: resultado + chat -->
+      <section class="panel panel-result" id="panel-4" aria-labelledby="title-4" hidden>
+        <div class="panel-head">
+          <h1 id="title-4">Resultado</h1>
+          <p class="lead">Peça alterações no chat</p>
+        </div>
+
+        <div class="result-layout">
+          <div class="stage stage-canvas">
+            <canvas id="result-canvas" width="720" height="960" aria-label="Resultado da prova"></canvas>
+          </div>
+
+          <aside class="chat" aria-label="Chat de ajustes">
+            <div class="chat-messages" id="chat-messages">
+              <div class="chat-bubble chat-bot">
+                Pronto. Peça alterações, por exemplo: “deixe a roupa vermelha” ou “encurte a barra”.
+              </div>
+            </div>
+            <form class="chat-form" id="chat-form">
+              <input
+                type="text"
+                id="chat-input"
+                placeholder="Ex.: mude para azul escuro…"
+                autocomplete="off"
+                maxlength="400"
+              />
+              <button type="submit" class="btn" id="btn-chat-send">Enviar</button>
+            </form>
+          </aside>
+        </div>
+
+        <div class="dock">
+          <div class="footer-nav">
+            <button type="button" class="btn btn-ghost" data-goto="3">Ajustar</button>
+            <button type="button" class="btn btn-ghost" id="btn-restart">Recomeçar</button>
+            <button type="button" class="btn" id="btn-download">Baixar</button>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="loading" id="ai-loading" hidden>
+    <div class="loading-card">
+      <p class="loading-title" id="loading-title">Vestindo com IA…</p>
+      <p class="loading-text" id="loading-text">Isso pode levar alguns segundos.</p>
+    </div>
+  </div>
+
+  <script src="js/main.js"></script>
+</body>
+</html>

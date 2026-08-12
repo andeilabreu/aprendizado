@@ -1,0 +1,27 @@
+{
+  "periodo": "07/07/2026 a 07/08/2026 (32 dias)",
+  "saldo_inicial": 95.32,
+  "saldo_final": 68.68,
+  "total_receitas": 2503.9,
+  "total_despesas": 1927.01,
+  "variacao_saldo": -26.639999999999986,
+  "gastos_por_categoria": {
+    "Transporte (Uber)": 437.52,
+    "Alimentação - Mercado": 553.68,
+    "Alimentação - Restaurante": 171.58,
+    "Água/Bebidas": 302.25,
+    "Transferências (PIX enviados)": 372.0,
+    "Farmácia": 23.99,
+    "Outros": 65.99
+  },
+  "media_diaria_gastos": 60.22,
+  "percentual_por_categoria": {
+    "Transporte (Uber)": 22.7,
+    "Alimentação - Mercado": 28.73,
+    "Alimentação - Restaurante": 8.9,
+    "Água/Bebidas": 15.68,
+    "Transferências (PIX enviados)": 19.3,
+    "Farmácia": 1.24,
+    "Outros": 3.42
+  }
+}

@@ -256,8 +256,9 @@ body {
   width: min(72vw, 520px);
   aspect-ratio: 1;
   border-radius: 8px;
-  overflow: hidden;
+  overflow: visible;
   background: var(--board-frame);
+  touch-action: none;
 }
 
 .square {
@@ -265,6 +266,7 @@ body {
   display: grid;
   place-items: center;
   user-select: none;
+  touch-action: none;
 }
 
 .square--light {
@@ -289,6 +291,7 @@ body {
   background: rgba(243, 235, 224, 0.55);
   box-shadow: 0 0 0 6px rgba(243, 235, 224, 0.12);
   animation: pulse 1.4s ease-in-out infinite;
+  pointer-events: none;
 }
 
 .square.is-capture::after {
@@ -302,18 +305,28 @@ body {
   border-radius: 50%;
   border: none;
   padding: 0;
-  cursor: pointer;
+  cursor: grab;
   position: relative;
-  transition: transform 0.18s ease, filter 0.18s ease;
+  transition: filter 0.18s ease;
   z-index: 1;
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
 }
 
-.piece:hover:not(:disabled) {
+.piece:hover:not(:disabled):not(.is-dragging) {
   transform: scale(1.06);
 }
 
 .piece:disabled {
   cursor: default;
+}
+
+.piece.is-dragging {
+  cursor: grabbing;
+  transition: none;
+  animation: none !important;
+  filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.45));
 }
 
 .piece--dark {
@@ -334,7 +347,7 @@ body {
     0 4px 10px rgba(0, 0, 0, 0.28);
 }
 
-.piece.is-selected {
+.piece.is-selected:not(.is-dragging) {
   transform: scale(1.08);
   filter: drop-shadow(0 0 10px var(--glow));
 }
@@ -436,14 +449,32 @@ body {
 }
 
 @media (max-width: 900px) {
+  .app {
+    width: min(100% - 1rem, 1120px);
+    padding: 1rem 0 2rem;
+  }
+
+  .brand {
+    margin-bottom: 1.25rem;
+  }
+
+  .brand h1 {
+    font-size: clamp(2.4rem, 12vw, 3.5rem);
+  }
+
+  .tagline {
+    font-size: 0.95rem;
+  }
+
   .stage {
     grid-template-columns: 1fr;
     justify-items: center;
+    gap: 1rem;
   }
 
   .panel {
     min-height: auto;
-    width: min(72vw, 520px);
+    width: min(92vw, 520px);
     align-items: stretch !important;
     text-align: left !important;
   }
@@ -462,10 +493,29 @@ body {
 
   .board-wrap {
     order: 1;
+    padding: 0.65rem;
+    width: min(92vw, 520px);
+  }
+
+  .board {
+    width: 100%;
+  }
+
+  .piece {
+    width: 78%;
   }
 
   .panel--right {
     order: 3;
+  }
+
+  .actions {
+    width: 100%;
+  }
+
+  .actions .btn {
+    flex: 1 1 auto;
+    text-align: center;
   }
 }
 
